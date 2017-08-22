@@ -1,10 +1,10 @@
 <ion-modal-view class="ionic-datepicker">
-  <ion-header-bar class="title" ng-class="headerClass">
+  <ion-header-bar class="title" ng-class="headerClass" ng-show="header.length > 0">
     <div ng-class="headerClass" ng-bind="header"></div>
   </ion-header-bar>
   <ion-content>
     <div>
-
+      <ng-include src="headerTemplate" ng-show="headerTemplate.length > 0"></ng-include>
       <ng-include src="'template-body.html'"></ng-include>
 
     </div>

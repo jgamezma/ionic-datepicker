@@ -123,7 +123,9 @@
           };
 
           scope.header = (scope.inputObj.header && scope.inputObj.header.length > 0) ? scope.inputObj.header : '';
-          if (scope.templateType === TEMPLATE_TYPE.MODAL && scope.header === '') scope.header = 'Datepicker';
+          scope.headerTemplate = (scope.inputObj.headerTemplate && scope.inputObj.headerTemplate.length > 0) ? scope.inputObj.headerTemplate : '';
+          
+          if (scope.templateType === TEMPLATE_TYPE.MODAL && scope.header === '' && scope.headerTemplate === '') scope.header = 'Datepicker';
           scope.headerClass = scope.inputObj.headerClass;
 
           scope.btnsIsNative = !!scope.inputObj.btnsIsNative;
