@@ -1,8 +1,8 @@
 {
-  "name": "ionic-multi-date-picker",
-  "version": "2.0.0",
+  "name": "ionic-multi-date-picker-plus",
+  "version": "2.0.1",
   "authors": [
-    "Denni Adam <dennila2@gmail.com>"
+    "Julian Gamez <juliangamez@gmail.com>"
   ],
   "description": "A multiple date picker component for Ionic framework",
   "main": [
@@ -23,7 +23,7 @@
     "datepicker for ionic framework"
   ],
   "license": "MIT",
-  "homepage": "https://github.com/dennila2",
+  "homepage": "https://github.com/jgamezma",
   "ignore": [
     "**/.*",
     "node_modules",
