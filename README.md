@@ -34,7 +34,7 @@ and fully rewrited.
 
 1) In your project repository install the ionic-datepicker using bower
 
-`bower install ionic-multi-date-picker --save`
+`bower install ionic-multi-date-picker-plus --save`
 
 This will install the latest version released.
 
