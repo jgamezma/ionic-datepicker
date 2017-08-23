@@ -124,6 +124,19 @@
 
           scope.header = (scope.inputObj.header && scope.inputObj.header.length > 0) ? scope.inputObj.header : '';
           scope.headerTemplate = (scope.inputObj.headerTemplate && scope.inputObj.headerTemplate.length > 0) ? scope.inputObj.headerTemplate : '';
+          scope.haveSelectedComponents = scope.inputObj.haveSelectedComponents === true;
+          scope.checkNextComponentDateIsMayor = scope.inputObj.checkNextComponentDateIsMayor === true;
+
+          
+          
+          scope.componentSelected = (angular.isNumber(scope.inputObj.componentSelectedDefault)) ? scope.inputObj.componentSelectedDefault : -1;
+
+          
+
+
+          scope.callbackActionsParent = (scope.inputObj.callbackActionsParent) ? scope.inputObj.callbackActionsParent : '';
+          scope.untilNumberOfDates= (scope.inputObj.untilNumberOfDates) ? scope.inputObj.untilNumberOfDates : '';
+          
           
           if (scope.templateType === TEMPLATE_TYPE.MODAL && scope.header === '' && scope.headerTemplate === '') scope.header = 'Datepicker';
           scope.headerClass = scope.inputObj.headerClass;
@@ -266,6 +279,9 @@
             if (this.length > 0) {
               for (var i = 0; i < this.length; i++) {
                 var d = this[i];
+                if(scope.haveSelectedComponents && !angular.isDate(d)){
+                  d = d.date;
+                }
                 if (d.getFullYear() === year && d.getMonth() === month && d.getDate() === date) {
                   return {isPresent: true, i: i};
                 }
@@ -274,8 +290,105 @@
             return {isPresent: false};
           };
 
+          scope.selectedDates.findIndex = function (year, month, date) {
+            if (this.length > 0) {
+              for (var i = 0; i < this.length; i++) {
+                var d = this[i];
+                var indexReturn=-1;
+                if(scope.haveSelectedComponents && !angular.isDate(d)){
+                  indexReturn=d.index;
+                  d = d.date;
+                }
+                if (d.getFullYear() === year && d.getMonth() === month && d.getDate() === date) {
+                  return {index: indexReturn};
+                }
+              }
+            }
+            return {index: -1};
+          };
+
+          scope.selectedDates.findComponentSelected = function (componentSelected) {
+            if (this.length > 0) {
+              for (var i = 0; i < this.length; i++) {
+                var d = this[i];
+                if (d.index===componentSelected){
+                  return {haveSelected: true, i: i};
+                }
+              }
+            }
+            return {haveSelected: false};
+          };
+
+          scope.selectedDates.checkComponentIsMayor = function (componentSelected, year, month, date) {
+            if (this.length > 0) {
+
+              var newArray=[];
+              for (var i = 0; i < this.length; i++) {
+                var d = this[i];
+                if(componentSelected !=d.index){
+                  newArray.push(d);
+                }
+              }
+
+
+              var isMayor=true;
+              var isIndexMayor=true;
+              var isDateMayor=true;
+              var isDateMenor=true;
+              var dateNow=new Date(year, month, date);
+
+              for (var i = 0; i < newArray.length; i++) {
+                var d = newArray[i];
+                if(componentSelected <=d.index){
+                  isIndexMayor=false;
+                  break;
+                }
+              }
+              if(isIndexMayor){
+                for (var i = 0; i < newArray.length; i++) {
+                  var d = newArray[i];
+                  if(dateNow<d.date){
+                    isDateMayor=false;
+                    break;
+                  }
+                }
+                if(isDateMayor){
+                  isMayor=true;
+                }else{
+                  isMayor=false;
+                }
+              }else{
+                for (var i = 0; i < newArray.length; i++) {
+                  var d = newArray[i];
+                  if(dateNow>d.date){
+                    isDateMenor=false;
+                    break;
+                  }
+                }
+                if(isDateMenor){
+                  isMayor=true;
+                }else{
+                  isMayor=false;
+                }
+              }
+              
+                         
+              return isMayor;
+            }
+            return true;
+          };
+
           scope.selectedDates.addRemove = function (year, month, date, state) {
             var find = this.findDate(year, month, date);
+            var findComponentSelected=null;
+            var checkComponentIsMayor=false;
+            if(scope.haveSelectedComponents){
+              findComponentSelected = this.findComponentSelected(scope.componentSelected);
+              if(scope.checkNextComponentDateIsMayor){
+                checkComponentIsMayor = this.checkComponentIsMayor(scope.componentSelected, year, month, date);  
+              }
+              
+            }
 
             switch (scope.selectType) {
               case SELECT_TYPE.SINGLE:
@@ -289,18 +402,75 @@
 
               default:
                 if (state === undefined) {
-                  if (find.isPresent) {
-                    this.splice(find.i, 1);
+                    if (find.isPresent) {
+                      if(!scope.haveSelectedComponents){
+                        this.splice(find.i, 1);
+                      }
+                      
+                    } else {
+                      if(findComponentSelected){
+                        if(findComponentSelected.haveSelected){
+                          if(scope.checkNextComponentDateIsMayor){
+                            if(checkComponentIsMayor){
+                              this.splice(findComponentSelected.i, 1);
+                              var object={};
+                              object.date=new Date(year, month, date);
+                              object.index=scope.componentSelected;
+                              this.push(object);
+                            }
+                          }else{
+                            this.splice(findComponentSelected.i, 1);
+                            var object={};
+                            object.date=new Date(year, month, date);
+                            object.index=scope.componentSelected;
+                            this.push(object);
+                          }
+                          
+                        }else{
+                          if(scope.untilNumberOfDates){
+                            if(this.length<=scope.untilNumberOfDates.number-1){
+                              if(scope.checkNextComponentDateIsMayor){
+                                if(checkComponentIsMayor){
+                                  var object={};
+                                  object.date=new Date(year, month, date);
+                                  object.index=scope.componentSelected;
+                                  this.push(object); 
+                                }
+                              }else{
+                                var object={};
+                                object.date=new Date(year, month, date);
+                                object.index=scope.componentSelected;
+                                this.push(object);
+                              }
+                                    
+                            } 
+                          }else{
+                            this.push(new Date(year, month, date));  
+                          }
+                        }
+                      }else{
+                        this.push(new Date(year, month, date));  
+                      }
+                      
+                      
+                    }
                   } else {
-                    this.push(new Date(year, month, date));
+                    if (find.isPresent && !state) {
+                      this.splice(find.i, 1);
+                    } else if (!find.isPresent && state) {
+                      if(scope.untilNumberOfDates){
+                        if(this.length<=scope.untilNumberOfDates.number-1){
+                          this.push(new Date(year, month, date));  
+                        }
+                        
+                      }else{
+                        this.push(new Date(year, month, date));  
+                      }
+                      
+                    }
                   }
-                } else {
-                  if (find.isPresent && !state) {
-                    this.splice(find.i, 1);
-                  } else if (!find.isPresent && state) {
-                    this.push(new Date(year, month, date));
-                  }
-                }
+
+                
             }
           };
 
@@ -313,7 +483,12 @@
             direction = (direction && direction === 'desc') ? -1 : 1;
             if (this.length > 0) {
               for (var i = 0; i < this.length; i++) {
-                this[i].sortField = glueDate(this[i]);
+                if(scope.haveSelectedComponents && !angular.isDate(this[i])){
+                  this[i].sortField = glueDate(this[i].date);
+                }else{
+                  this[i].sortField = glueDate(this[i]);
+                }
+                
               }
             }
 
@@ -403,8 +578,21 @@
 
               for (var i = 0; i < this.length - 1; i++) {
                 if (this[i + 1].sortField - this[i].sortField !== 1) {
-                  var d1 = new Date(this[i].getFullYear(), this[i].getMonth(), this[i].getDate());
-                  var d2 = new Date(this[i + 1].getFullYear(), this[i + 1].getMonth(), this[i + 1].getDate());
+
+                  var d1 = null;
+                  var d2 = null;
+
+                  if(scope.haveSelectedComponents && !angular.isDate(this[i])){
+                    var dateObjd1=this[i].date;
+                    var dateObjd2=this[i+1].date;
+                    d1 = new Date(dateObjd1.getFullYear(), dateObjd1.getMonth(), dateObjd1.getDate());
+                    d2 = new Date(dateObjd2.getFullYear(), dateObjd2.getMonth(), dateObjd2.getDate());
+                  }else{
+                    d1 = new Date(this[i].getFullYear(), this[i].getMonth(), this[i].getDate());
+                    d2 = new Date(this[i + 1].getFullYear(), this[i + 1].getMonth(), this[i + 1].getDate());
+                  }
+
+                  
                   var diff = (d2.getTime() - d1.getTime()) / (24 * 60 * 60 * 1000);
 
                   if (diff != 1) {
@@ -467,6 +655,7 @@
 
           scope.dayList.repaint = function () {
             var viewMonthDates = [];
+            var indexMonthDates = [];
             scope.selectedDates.sortByDate();
 
             var firstDay = glueDate(this[0]);
@@ -475,7 +664,13 @@
             var sd = scope.selectedDates;
             for (var i = 0; i < sd.length; i++) {
               if (sd[i].sortField >= firstDay && sd[i].sortField <= lastDay) {
-                viewMonthDates.push(sd[i].sortField);
+                if(scope.haveSelectedComponents){
+                  viewMonthDates.push(sd[i].sortField);
+                  indexMonthDates.push(sd[i].index);
+                }else{
+                  viewMonthDates.push(sd[i].sortField);
+                }
+                
               } else if (sd[i].sortField > lastDay) {
                 break;
               }
@@ -483,8 +678,20 @@
 
             i = 0;
             while (i < this.length) {
-              this[i].style.isSelected = viewMonthDates.indexOf(glueDate(this[i])) >= 0;
+              if(scope.haveSelectedComponents){
+                this[i].style.isSelected = viewMonthDates.indexOf(glueDate(this[i])) >= 0;  
+                if(this[i].style.isSelected){
+                  this[i].index=indexMonthDates[viewMonthDates.indexOf(glueDate(this[i]))];
+                }
+              }else{
+                this[i].style.isSelected = viewMonthDates.indexOf(glueDate(this[i])) >= 0;  
+              }
+              
+              /*if(this[i].style.isSelected){
+                this[i].index=
+              }*/
               i++;
+              
             }
           };
 
@@ -492,6 +699,11 @@
             scope.dayList.repaint();
             var i = this.findDay(year, month, date);
             this[i].style.isSelected = !this[i].style.isSelected;
+            /*if(scope.haveSelectedComponents){
+              if(scope.componentSelected===i){
+                this[i].style.index=scope.componentSelected;
+              }
+            }*/
           };
         }
 
@@ -609,6 +821,10 @@
 
             var isDisabled = scope.selectedDates.findDate.call(scope.disabledDates, viewYear, viewMonth, i, true).isPresent;
             var isSelected = scope.selectedDates.findDate(viewYear, viewMonth, i).isPresent && !isDisabled;
+            var index = -1;
+            if(isSelected){
+              index= scope.selectedDates.findIndex(viewYear, viewMonth, i).index;
+            }
 
             var iDate = new Date(viewYear, viewMonth, i);
 
@@ -617,9 +833,11 @@
               month: viewMonth,
               date: i,
               day: iDate.getDay(),
+              index: index,
               style: {
                 isSelected: isSelected,
                 isToday: isToday,
+                index: index,
                 isDisabled: isDisabled,
                 isCalendar0: isCalendar[0],
                 isCalendar1: isCalendar[1],
@@ -654,6 +872,10 @@
 
             isDisabled = scope.selectedDates.findDate.call(scope.disabledDates, date.year, date.month, lastDay - j).isPresent;
             isSelected = scope.selectedDates.findDate(date.year, date.month, lastDay - j).isPresent && !isDisabled;
+            var index = -1;
+            if(isSelected){
+              index= scope.selectedDates.findIndex(date.year, date.month, lastDay - j).index;
+            }
 
             iDate = new Date(date.year, date.month, lastDay - j);
 
@@ -662,9 +884,11 @@
               month: date.month,
               date: lastDay - j,
               day: iDate.getDay(),
+              index: index,
               style: {
                 isSelected: isSelected,
                 isToday: isToday,
+                index: index,
                 isDisabled: isDisabled,
                 isCalendar0: isCalendar[0],
                 isCalendar1: isCalendar[1],
@@ -694,6 +918,10 @@
 
             isDisabled = scope.selectedDates.findDate.call(scope.disabledDates, date.year, date.month, i).isPresent;
             isSelected = scope.selectedDates.findDate(date.year, date.month, i).isPresent && !isDisabled;
+            var index = -1;
+            if(isSelected){
+              index= scope.selectedDates.findIndex(date.year, date.month, i).index;
+            }
             iDate = new Date(date.year, date.month, i);
 
             scope.dayList.push({
@@ -701,9 +929,11 @@
               month: date.month,
               date: i,
               day: iDate.getDay(),
+              index: index,
               style: {
                 isSelected: isSelected,
                 isToday: isToday,
+                index: index,
                 isDisabled: isDisabled,
                 isCalendar0: isCalendar[0],
                 isCalendar1: isCalendar[1],
@@ -757,6 +987,7 @@
 
         // date-cell ng-click:
         scope.onTap = function (date, row) {
+
           if (scope.accessType == ACCESS_TYPE.WRITE) {
             if (!scope.selectByWeek.is) {
               selectDay(date)
@@ -779,6 +1010,11 @@
               }
             }
           }
+        };
+
+        //TODO internal actions from header
+        scope.onSelectComponent = function (component) {
+          scope.componentSelected=component;
         };
 
         scope.onHold = function (date) {
@@ -812,7 +1048,10 @@
             scope.selectedDates.addRemove(date.year, date.month, date.date, state);
             scope.dayList.repaint();
             scope.selectedDates.checkPeriod();
-
+            $timeout(function(){
+              refreshDateList();  
+            },300);
+            
           }
         }
 

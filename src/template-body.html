@@ -29,9 +29,10 @@
   <div class="date-grid">
     <div class="row date-row"
          ng-repeat="row in rows track by $index">
-      <div class="col no-padding date-col"
+
+      <div data-id="{{untilNumberOfDates.styles[dayList[row + $index].index]}}" class="col no-padding date-col"
            ng-repeat="col in cols track by $index"
-           ng-class="{'selected': (dayList[row + $index].style.isSelected && accessType == 'WRITE')
+           ng-class="{'selected': (!haveSelectedComponents && dayList[row + $index].style.isSelected && accessType == 'WRITE')
               , 'selected-light': (dayList[row + $index].style.isSelected && accessType == 'READ')
               , 'today' : (dayList[row + $index].style.isToday)
               , 'weekend': ((dayList[row + $index].day == 6 || dayList[row + $index].day == 0) && viewMonth == dayList[row + $index].month)
@@ -39,7 +40,11 @@
 
               , 'not-empty': !(dayList[row + $index].style.isToday || dayList[row + $index].style.isSelected || dayList[row + $index].style.isDisabled) && (dayList[row + $index].style.isCalendar0 || dayList[row + $index].style.isCalendar1 || dayList[row + $index].style.isCalendar2 || dayList[row + $index].style.isCalendar3 || dayList[row + $index].style.isCalendar4 || dayList[row + $index].style.isCalendar5 || dayList[row + $index].style.isCalendar6 || dayList[row + $index].style.isCalendar7)
 
-              , 'not-cur-month': (!dayList[row + $index].style.isViewMonth)}">
+              , 'not-cur-month': (!dayList[row + $index].style.isViewMonth), 
+              'selected {{untilNumberOfDates.styles[dayList[row + $index].index]}}': (haveSelectedComponents && dayList[row + $index].style.isSelected && accessType == 'WRITE')
+               }"
+
+              >
         <div class="date-cell"
              on-hold="onHold(dayList[row + $index])"
              on-release="onRelease(dayList[row + $index])"
