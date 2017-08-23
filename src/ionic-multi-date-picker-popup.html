@@ -4,7 +4,7 @@
   <div class="title ng-hide" ng-show="header.length > 0">
     <h3 ng-class="headerClass" ng-bind="header"></h3>
   </div>
-
+  <ng-include src="headerTemplate" ng-show="headerTemplate.length > 0"></ng-include>
   <ng-include src="'template-body.html'"></ng-include>
 
   <div class="btns-right-popup ng-hide" ng-show="!btnsIsNative">
