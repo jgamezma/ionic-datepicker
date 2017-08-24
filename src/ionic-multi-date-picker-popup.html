@@ -4,10 +4,27 @@
   <div class="title ng-hide" ng-show="header.length > 0">
     <h3 ng-class="headerClass" ng-bind="header"></h3>
   </div>
+  <div class="btns-right-popup" ng-show="!btnsIsNative && btnsAlternative">
+    <button class="button"
+            ng-click="btns[0].onTap()"
+            ng-disabled="btns[0].sType == 'ok' && errors.len > 0"
+            ng-class="btns[0].type">
+      {{ btns[0].text }}
+    </button>
+  </div>
   <ng-include src="headerTemplate" ng-show="headerTemplate.length > 0"></ng-include>
   <ng-include src="'template-body.html'"></ng-include>
 
-  <div class="btns-right-popup ng-hide" ng-show="!btnsIsNative">
+  <div class="btns-right-popup ng-hide" ng-show="!btnsIsNative && btnsAlternative">
+    <button class="button"
+            ng-click="btns[1].onTap()"
+            ng-disabled="btns[1].sType == 'ok' && errors.len > 0"
+            ng-class="btns[1].type">
+      {{ btns[1].text }}
+    </button>
+  </div>
+
+  <div class="btns-right-popup ng-hide" ng-show="!btnsIsNative && !btnsAlternative">
     <button class="button"
             ng-repeat="btn in btns"
             ng-click="btn.onTap()"
@@ -16,6 +33,7 @@
       {{ btn.text }}
     </button>
   </div>
+
   <div class="clear"></div>
 
 </div>

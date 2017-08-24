@@ -142,6 +142,9 @@
           scope.headerClass = scope.inputObj.headerClass;
 
           scope.btnsIsNative = !!scope.inputObj.btnsIsNative;
+          scope.btnsAlternative = !!scope.inputObj.btnsAlternative;
+
+          
 
           scope.btnOk = scope.inputObj.btnOk ? scope.inputObj.btnOk : 'Ok';
           scope.btnOkClass = scope.inputObj.btnOkClass ? scope.inputObj.btnOkClass : 'button-stable cal-button';
