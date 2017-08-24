@@ -1052,7 +1052,11 @@
             scope.dayList.repaint();
             scope.selectedDates.checkPeriod();
             $timeout(function(){
-              refreshDateList();  
+              refreshDateList();
+              if(scope.haveSelectedComponents){
+                var arr = Object.keys(scope.callbackActionsParent).map(function(item) { return scope.callbackActionsParent[item] });
+                scope.callbackActionsParent[arr[scope.componentSelected].name](date);
+              }
             },300);
             
           }
